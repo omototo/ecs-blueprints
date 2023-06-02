@@ -8,8 +8,10 @@ phases:
   install:
     runtime-versions:
       python: 3.8.3
+      docker: 18
   pre_build:
     commands:
+      - echo "Pre build"
       - $REPOSITORY = $env:REPO_URL -replace "/[^/]*$", ""
       - $password = aws ecr get-login-password
       - echo $password | docker login --username AWS --password-stdin $REPOSITORY
