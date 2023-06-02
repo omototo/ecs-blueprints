@@ -2,7 +2,8 @@ version: 0.2
 env:
   shell: powershell.exe
   privileged-mode: true
-  type: BUILD_GENERAL1_MEDIUM
+  compute-type: BUILD_GENERAL1_MEDIUM
+  image: aws/codebuild/windows-base:2019-1.0
 phases:
   install:
     runtime-versions:
