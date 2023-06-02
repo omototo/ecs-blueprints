@@ -3,6 +3,9 @@ version: 0.2
 phases:
   pre_build:
     commands:
+      - Install-Module -Name DockerMsftProvider -Repository PSGallery -Force
+      - Install-Package -Name docker -ProviderName DockerMsftProvider
+      - Restart-Service Docker
       - $REPOSITORY = $env:REPO_URL -replace "/[^/]*$", ""
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPOSITORY
       - powershell -Command "(Get-Content -path ./application-code/container-queue-proc/src/app.py) -replace '<QUEUE_NAME>', '$QUEUE_NAME' | Set-Content -Path ./application-code/container-queue-proc/src/app.py"
