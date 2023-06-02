@@ -7,7 +7,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   name   = basename(path.cwd)
-  region = "us-west-2"
+  region = "eu-central-1"
 
   vpc_cidr = "10.0.0.0/16"
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
@@ -88,3 +88,52 @@ resource "aws_service_discovery_private_dns_namespace" "this" {
 
   tags = local.tags
 }
+
+resource "aws_iam_role" "ecs_role" {
+  name = "core-infra-execution-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "ecs_ecr_cloudwatch_policy" {
+  name = "ecs_ecr_cloudwatch_policy"
+  role = aws_iam_role.ecs_role.id
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:GetRepositoryPolicy",
+                "ecr:DescribeRepositories",
+                "ecr:ListImages",
+                "ecr:DescribeImages",
+                "ecr:BatchGetImage",
+                "logs:CreateLogStream",
+                "logs:CreateLogGroup",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+}
+

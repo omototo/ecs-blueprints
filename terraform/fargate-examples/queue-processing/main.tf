@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-west-2"
+  region = "eu-central-1"
 }
 
 data "aws_caller_identity" "current" {}
@@ -7,7 +7,7 @@ data "aws_caller_identity" "current" {}
 locals {
 
   name   = "ecsdemo-queue-proc"
-  region = "us-west-2"
+  region = "eu-central-1"
 
   container_name = "ecsdemo-queue-proc"
 
@@ -34,6 +34,7 @@ module "service_task_security_group" {
 
   tags = local.tags
 }
+
 
 module "container_image_ecr" {
   source  = "terraform-aws-modules/ecr/aws"
@@ -100,7 +101,7 @@ module "lambda_function" {
   publish            = true
   attach_policy_json = true
   policy_json        = data.aws_iam_policy_document.lambda_role.json
-  source_path        = "../../application-code/lambda-function-queue-trigger/"
+  source_path        = "../../../application-code/lambda-function-queue-trigger/"
 
   cloudwatch_logs_retention_in_days = 90
 
@@ -140,26 +141,6 @@ module "source_s3_bucket" {
   version = "~> 3.0"
 
   bucket = "${local.name}-source-${local.region}-${random_id.this.hex}"
-  acl    = "private"
-
-  # For example only - please evaluate for your environment
-  force_destroy = true
-
-  attach_deny_insecure_transport_policy = true
-  attach_require_latest_tls_policy      = true
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-
-  server_side_encryption_configuration = {
-    rule = {
-      apply_server_side_encryption_by_default = {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
 
   tags = local.tags
 }
@@ -169,27 +150,6 @@ module "destination_s3_bucket" {
   version = "~> 3.0"
 
   bucket = "${local.name}-destination-${local.region}-${random_id.this.hex}"
-  acl    = "private"
-
-  # For example only - please evaluate for your environment
-  force_destroy = true
-
-  attach_deny_insecure_transport_policy = true
-  attach_require_latest_tls_policy      = true
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-
-  server_side_encryption_configuration = {
-    rule = {
-      apply_server_side_encryption_by_default = {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
-
   tags = local.tags
 }
 
@@ -243,7 +203,7 @@ resource "aws_ssm_parameter" "ecs_pipeline_enabled" {
 resource "aws_ssm_parameter" "ecs_pipeline_max_tasks" {
   name  = "PIPELINE_ECS_MAX_TASKS"
   type  = "String"
-  value = 10
+  value = 100
 
   tags = local.tags
 }
@@ -321,27 +281,6 @@ module "codepipeline_s3_bucket" {
   version = "~> 3.0"
 
   bucket = "codepipeline-${local.region}-${random_id.this.hex}"
-  acl    = "private"
-
-  # For example only - please re-evaluate for your environment
-  force_destroy = true
-
-  attach_deny_insecure_transport_policy = true
-  attach_require_latest_tls_policy      = true
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-
-  server_side_encryption_configuration = {
-    rule = {
-      apply_server_side_encryption_by_default = {
-        sse_algorithm = "AES256"
-      }
-    }
-  }
-
   tags = local.tags
 }
 
