@@ -1,4 +1,38 @@
 version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.8.3
+      docker: 20
+  pre_build:
+    commands:
+      - for /f "delims=/ tokens=1,*" %%A in ("%REPO_URL%") do set REPOSITORY=%%A
+      - aws ecr get-login-password --region %AWS_REGION% | docker login --username AWS --password-stdin %REPOSITORY%
+      - REM Replace text in files (requires custom solution)
+      - set COMMIT_HASH=%CODEBUILD_RESOLVED_SOURCE_VERSION:~0,7%
+      - if "%COMMIT_HASH%"=="" set COMMIT_HASH=latest
+      - set IMAGE_TAG=%COMMIT_HASH%
+  build:
+    commands:
+      - docker build -t %REPO_URL% %FOLDER_PATH%
+  post_build:
+    commands:
+      # - docker push %REPO_URL% || true #chicken & egg problem : ecr immutable this push will only works one time, but required for first deployment from terraform
+      - docker tag %REPO_URL% %REPO_URL%:%IMAGE_TAG%
+      - docker push %REPO_URL%:%IMAGE_TAG%
+      - REM Update task definition (requires custom solution)
+      - mkdir artifacts
+      - copy tmp-ntd.json artifacts\task-definition.json
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'artifacts'
+  discard-paths: yes
+
+
+version: 0.2
 env:
   shell: cmd.exe
 phases:
