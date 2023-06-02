@@ -1,14 +1,11 @@
 version: 0.2
 env:
-  shell: powershell.exe
-  privileged-mode: true
-  compute-type: BUILD_GENERAL1_MEDIUM
-  image: aws/codebuild/windows-base:2019-1.0
+  shell: cmd.exe
 phases:
   install:
     runtime-versions:
       python: 3.8.3
-      docker: 18
+      docker: 20
   pre_build:
     commands:
       - echo "Pre build"
