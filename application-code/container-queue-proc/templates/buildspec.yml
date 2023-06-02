@@ -3,19 +3,19 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - REPOSITORY=${REPO_URL%/*}
+      - $REPOSITORY = $env:REPO_URL -replace "/[^/]*$", ""
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPOSITORY
       - powershell -Command "(Get-Content -path ./application-code/container-queue-proc/src/app.py) -replace '<QUEUE_NAME>', '$QUEUE_NAME' | Set-Content -Path ./application-code/container-queue-proc/src/app.py"
       - powershell -Command "(Get-Content -path ./application-code/container-queue-proc/src/app.py) -replace '<DESTINATION_BUCKET>', '$DESTINATION_BUCKET' | Set-Content -Path ./application-code/container-queue-proc/src/app.py"
-      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - $COMMIT_HASH = $env:CODEBUILD_RESOLVED_SOURCE_VERSION.substring(0, 7)
+      - if (!$COMMIT_HASH) { $COMMIT_HASH = 'latest' }; $IMAGE_TAG = $COMMIT_HASH
   build:
     commands:
-      - docker build -t $REPO_URL -f Dockerfile.windows $FOLDER_PATH
+      - powershell -Command "docker build -t $env:REPO_URL -f Dockerfile.windows $env:FOLDER_PATH"
   post_build:
     commands:
-      - docker tag $REPO_URL $REPO_URL:$IMAGE_TAG
-      - docker push $REPO_URL:$IMAGE_TAG
+      - powershell -Command "docker tag $env:REPO_URL $env:REPO_URL:$IMAGE_TAG"
+      - powershell -Command "docker push $env:REPO_URL:$IMAGE_TAG"
       - |
           TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --query '{
                 containerDefinitions: taskDefinition.containerDefinitions,
