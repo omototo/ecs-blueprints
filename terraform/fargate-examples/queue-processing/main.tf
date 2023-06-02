@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "eu-central-1"
+  region = "eu-west-1"
 }
 
 data "aws_caller_identity" "current" {}
@@ -7,7 +7,7 @@ data "aws_caller_identity" "current" {}
 locals {
 
   name   = "ecsdemo-queue-proc"
-  region = "eu-central-1"
+  region = "eu-west-1"
 
   container_name = "ecsdemo-queue-proc"
 
