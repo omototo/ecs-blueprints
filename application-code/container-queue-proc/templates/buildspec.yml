@@ -3,6 +3,7 @@ version: 0.2
 phases:
   pre_build:
     commands:
+      - Install-Package -Name docker -ProviderName DockerMsftProvider -Force
       - $REPOSITORY = $env:REPO_URL -replace "/[^/]*$", ""
       - aws ecr get-login-password | powershell -Command "docker login --username AWS --password-stdin $REPOSITORY"
       - powershell -Command "(Get-Content -path ./application-code/container-queue-proc/src/app.py) -replace '<QUEUE_NAME>', '$QUEUE_NAME' | Set-Content -Path ./application-code/container-queue-proc/src/app.py"
@@ -28,8 +29,10 @@ phases:
                 requiresCompatibilities: taskDefinition.requiresCompatibilities,
                 cpu: taskDefinition.cpu,
                 memory: taskDefinition.memory
-            }'> tmp-td.json)
-      - NEW_TASK_DEFINTION=$(jq -r --arg NEWIMAGE "$REPO_URL:$IMAGE_TAG" '.containerDefinitions[].image |= $NEWIMAGE' tmp-td.json > tmp-ntd.json)
+            }' | Out-File -Encoding utf8 tmp-td.json)
+      - $json = Get-Content -Raw -Path tmp-td.json | ConvertFrom-Json
+      - $json.containerDefinitions[0].image = "$env:REPO_URL:$IMAGE_TAG"
+      - $json | ConvertTo-Json -Depth 20 | Set-Content tmp-ntd.json
       - aws ecs register-task-definition --cli-input-json file://tmp-ntd.json
       - mkdir artifacts
       - cp tmp-ntd.json artifacts/task-definition.json
