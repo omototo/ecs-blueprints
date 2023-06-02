@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/python:alpine3.16
+FROM public.ecr.aws/docker/library/python:3.12.0b1-slim-buster
 
 RUN mkdir -p /tmp/ecsproc/
 

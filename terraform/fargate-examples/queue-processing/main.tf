@@ -334,7 +334,8 @@ module "codebuild_ci" {
         }, {
         name  = "DESTINATION_BUCKET"
         value = module.destination_s3_bucket.s3_bucket_id
-      },
+      }
+      
     ]
   }
 
