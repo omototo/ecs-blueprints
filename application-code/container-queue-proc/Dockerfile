@@ -1,8 +1,4 @@
-FROM mcr.microsoft.com/windows/servercore:ltsc2019
-
-# Install Python, pip
-ADD https://www.python.org/ftp/python/3.12.0/python-3.12.0.exe ./ 
-RUN python-3.12.0.exe /quiet InstallAllUsers=1 PrependPath=1
+FROM public.ecr.aws/docker/library/python:alpine3.16
 
 RUN mkdir -p /tmp/ecsproc/
 
