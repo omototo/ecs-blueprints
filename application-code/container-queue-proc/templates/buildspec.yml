@@ -1,30 +1,40 @@
 version: 0.2
 
 phases:
-  install:
-    runtime-versions:
-      python: 3.8.3
-      docker: 20
   pre_build:
     commands:
-      - $REPO_URL_ARR = $env:REPO_URL -split "/"
-        $env:REPOSITORY = $REPO_URL_ARR[0]
-      - aws ecr get-login-password --region $env:AWS_REGION | docker login --username AWS --password-stdin $env:REPOSITORY
-      - # Replace text in files (requires custom solution)
-      - $env:COMMIT_HASH = $env:CODEBUILD_RESOLVED_SOURCE_VERSION.substring(0,7)
-      - if ($env:COMMIT_HASH -eq $null) { $env:COMMIT_HASH = "latest" }
-      - $env:IMAGE_TAG = $env:COMMIT_HASH
+      - REPOSITORY=${REPO_URL%/*}
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPOSITORY
+      - sed -i "s|<QUEUE_NAME>|$QUEUE_NAME|g" ./application-code/container-queue-proc/src/app.py
+      - sed -i "s|<DESTINATION_BUCKET>|$DESTINATION_BUCKET|g" ./application-code/container-queue-proc/src/app.py
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
   build:
     commands:
-      - docker build -t $env:REPO_URL $env:FOLDER_PATH
+      - docker build -t $REPO_URL $FOLDER_PATH
   post_build:
     commands:
-      # - docker push $env:REPO_URL || true #chicken & egg problem : ecr immutable this push will only works one time, but required for first deployment from terraform
-      - docker tag $env:REPO_URL $env:REPO_URL:$env:IMAGE_TAG
-      - docker push $env:REPO_URL:$env:IMAGE_TAG
-      - # Update task definition (requires custom solution)
-      - New-Item -ItemType Directory -Path artifacts -Force
-      - Copy-Item tmp-ntd.json artifacts\task-definition.json
+      # - docker push $REPO_URL || true #chicken & egg problem : ecr immutable this push will only works one time, but required for first deployment from terraform
+      - docker tag $REPO_URL $REPO_URL:$IMAGE_TAG
+      - docker push $REPO_URL:$IMAGE_TAG
+      - |
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --query '{
+                containerDefinitions: taskDefinition.containerDefinitions,
+                family: taskDefinition.family,
+                taskRoleArn: taskDefinition.taskRoleArn,
+                executionRoleArn: taskDefinition.executionRoleArn,
+                networkMode: taskDefinition.networkMode,
+                volumes: taskDefinition.volumes,
+                placementConstraints: taskDefinition.placementConstraints,
+                requiresCompatibilities: taskDefinition.requiresCompatibilities,
+                cpu: taskDefinition.cpu,
+                memory: taskDefinition.memory
+            }'> tmp-td.json)
+      - NEW_TASK_DEFINTION=$(jq -r --arg NEWIMAGE "$REPO_URL:$IMAGE_TAG" '.containerDefinitions[].image |= $NEWIMAGE' tmp-td.json > tmp-ntd.json)
+      # - NEW_REVISION=$(echo $NEW_TASK_INFO | jq '.taskDefinition.revision')
+      - aws ecs register-task-definition --cli-input-json file://tmp-ntd.json
+      - mkdir artifacts
+      - cp tmp-ntd.json artifacts/task-definition.json
 
 artifacts:
   files:
