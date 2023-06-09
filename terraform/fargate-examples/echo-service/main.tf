@@ -51,6 +51,7 @@ resource "aws_cognito_user_pool" "this" {
 
 resource "aws_cognito_user_pool_client" "this" {
   name = "echo-user-pool-client"
+  explicit_auth_flows = ["ADMIN_NO_SRP_AUTH"]
   user_pool_id = aws_cognito_user_pool.this.id
   # Add any additional configuration options here
 }
@@ -80,12 +81,13 @@ resource "aws_lb_target_group" "this" {
   port     = 3000
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.vpc.id
+  target_type = "ip"
 
   health_check {
     path = "/"
   }
-
 }
+
 
 resource "aws_security_group" "this" {
   name_prefix = "echo-sg"
@@ -134,7 +136,7 @@ resource "aws_iam_role" "task" {
   tags = local.tags
 }
 
-/*
+
 resource "aws_ecs_service" "this" {
   name            = "echo-service"
   cluster         = data.aws_ecs_cluster.core_infra.id
@@ -147,19 +149,19 @@ resource "aws_ecs_service" "this" {
 
   network_configuration {
     security_groups = [aws_security_group.this.id]
-    subnets         =  concat(data.aws_subnets.public.*.id, data.aws_subnets.private.*.id)
+    subnets         =  concat(data.aws_subnets.public.ids)
 
     assign_public_ip = false
   }
 
   load_balancer {
     target_group_arn = aws_lb_target_group.this.arn
-    container_name   = "echo-service"
+    container_name   = "echo-service-task"
     container_port   = 3000
   }
 
   tags = local.tags
-}*/
+}
 
 
 resource "aws_iam_role" "codebuild" {

@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Net.Http.Headers;
 
 namespace EchoService
 {
@@ -27,33 +29,40 @@ namespace EchoService
                 var message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
                 Console.WriteLine("Received message: {0}", message);
 
-                var authToken = message.Trim();
-
-                if (string.IsNullOrEmpty(authToken))
+                // Check if the request contains an Authorization header
+                if (!message.Contains("Authorization: Basic"))
                 {
-                    var response = Encoding.ASCII.GetBytes("Unauthorized");
-                    stream.Write(response, 0, response.Length);
+                    Console.WriteLine("Unauthorized request");
+                    var response = Encoding.ASCII.GetBytes("HTTP/1.1 401 Unauthorized\r\n\r\n");
+                    await stream.WriteAsync(response, 0, response.Length);
                     client.Close();
                     continue;
                 }
 
-                var validateTokenRequest = new AdminInitiateAuthRequest
+                var authHeader = message.Split("Authorization: Basic")[1].Split("\n")[0].Trim();
+                var authHeaderBytes = Convert.FromBase64String(authHeader);
+                var authDetails = Encoding.ASCII.GetString(authHeaderBytes).Split(":");
+                var username = authDetails[0];
+                var password = authDetails[1];
+
+            var validateTokenRequest = new AdminInitiateAuthRequest
+            {
+                UserPoolId = Environment.GetEnvironmentVariable("COGNITO_USER_POOL_ID"),
+                ClientId = Environment.GetEnvironmentVariable("COGNITO_USER_POOL_CLIENT_ID"),
+                AuthFlow = AuthFlowType.ADMIN_NO_SRP_AUTH,
+                AuthParameters = new Dictionary<string, string>
                 {
-                    UserPoolId = Environment.GetEnvironmentVariable("COGNITO_USER_POOL_ID"),
-                    ClientId = Environment.GetEnvironmentVariable("COGNITO_USER_POOL_CLIENT_ID"),
-                    AuthFlow = AuthFlowType.ADMIN_NO_SRP_AUTH,
-                    AuthParameters = new Dictionary<string, string>
-                    {
-                        { "USERNAME", authToken },
-                        { "PASSWORD", "dummy" }
-                    }
-                };
+                    { "USERNAME", username },
+                    { "PASSWORD", password }
+                }
+            };
+
 
                 var validateTokenResponse = await _cognitoClient.AdminInitiateAuthAsync(validateTokenRequest);
 
                 if (validateTokenResponse.ChallengeName == ChallengeNameType.NEW_PASSWORD_REQUIRED)
                 {
-                    var response = Encoding.ASCII.GetBytes("Password reset required");
+                    var response = Encoding.ASCII.GetBytes("HTTP/1.1 403 Forbidden\r\n\r\nPassword reset required");
                     stream.Write(response, 0, response.Length);
                     client.Close();
                     continue;
@@ -61,7 +70,7 @@ namespace EchoService
 
                 if (validateTokenResponse.AuthenticationResult == null)
                 {
-                    var response = Encoding.ASCII.GetBytes("Invalid credentials");
+                    var response = Encoding.ASCII.GetBytes("HTTP/1.1 403 Forbidden\r\n\r\nInvalid credentials");
                     stream.Write(response, 0, response.Length);
                     client.Close();
                     continue;
@@ -76,14 +85,17 @@ namespace EchoService
 
                 var responseBody = new Dictionary<string, string>
                 {
-                    { "message", "Hello, " + userInfoResponse.Username }
+                    { "message", "Hello, " + userInfoResponse.Username },
+                    { "email", userInfoResponse.UserAttributes.FirstOrDefault(a => a.Name == "email")?.Value }
                 };
 
                 var responseJson = JsonConvert.SerializeObject(responseBody);
-                var responseBytes = Encoding.ASCII.GetBytes(responseJson);
+                var responseBytes = Encoding.ASCII.GetBytes("HTTP/1.1 200 OK\r\n\r\n" + responseJson);
                 stream.Write(responseBytes, 0, responseBytes.Length);
                 client.Close();
+
             }
         }
     }
 }
+
