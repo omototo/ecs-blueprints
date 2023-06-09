@@ -6,7 +6,7 @@ phases:
       - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel STS 
   pre_build:
     commands:
-      - $REPO_URL
+      - echo $REPO_URL
       - echo ${REPOSITORY_URI}
       - echo ${REPOSITORY_URI}:latest
       - echo $REPOSITORY_URI
