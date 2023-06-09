@@ -42,10 +42,11 @@ phases:
       - aws ecs register-task-definition --cli-input-json file://tmp-ntd.json
       - mkdir artifacts
       - cp tmp-ntd.json artifacts/task-definition.json
-      - echo REPO_URL $REPO_URL
-      - echo IMAGE_TAG $IMAGE_TAG
-      - echo '[{"name":"CONTAINER_NAME","imageUri":"$REPO_URL:$IMAGE_TAG"}]' > imagedefinitions.json
-      - cp imagedefinitions.json artifacts/
+      - cp templates/imagedefinition.json artifacts/imagedefinition.json
+      - echo Preparating artifacts
+      - sed -i "s|<CONTAINER_NAME>|$CONTAINER_NAME|g" artifacts/imagedefinition.json
+      - sed -i "s|<REPO_URL>|$REPO_URL:$IMAGE_TAG|g" artifacts/imagedefinition.json
+      - cat artifacts/imagedefinition.json
 artifacts:
   files:
     - '**/*'
