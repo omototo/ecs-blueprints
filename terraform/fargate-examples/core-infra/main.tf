@@ -121,29 +121,33 @@ resource "aws_iam_role_policy" "ecs_ecr_cloudwatch_policy" {
   name = "ecs_ecr_cloudwatch_policy"
   role = aws_iam_role.ecs_role.id
 
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ecr:GetAuthorizationToken",
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:GetRepositoryPolicy",
-                "ecr:DescribeRepositories",
-                "ecr:ListImages",
-                "ecr:DescribeImages",
-                "ecr:BatchGetImage",
-                "logs:CreateLogStream",
-                "logs:CreateLogGroup",
-                "logs:PutLogEvents"
-            ],
-            "Resource": "*"
-        }
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect    = "Allow"
+        Action    = "ecs:*"
+        Resource  = "*"
+      },
+      {
+        Effect    = "Allow"
+        Action    = "ecr:GetAuthorizationToken"
+        Resource  = "*"
+      },
+      {
+        Effect    = "Allow"
+        Action    = [
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:Describe*",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:CreateLogGroup"
+        ]
+        Resource  = "*"
+      }
     ]
-}
-EOF
+  })
 }
 

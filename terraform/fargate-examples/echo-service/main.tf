@@ -124,6 +124,8 @@ resource "aws_ecs_task_definition" "this" {
   task_role_arn = aws_iam_role.task.arn
   execution_role_arn       = one(data.aws_iam_roles.ecs_core_infra_exec_role.arns)
   tags = local.tags
+
+
 }
 resource "aws_iam_role" "task" {
   name               = "${local.name}-task"
@@ -220,13 +222,15 @@ resource "aws_iam_policy" "codebuild" {
           "ecr:UploadLayerPart",
           "ecr:InitiateLayerUpload",
           "ecr:BatchCheckLayerAvailability",
-          "ecr:PutImage"
+          "ecr:PutImage",
+          "iam:PassRole"
         ]
         Resource = "*"
       }
     ]
   })
 }
+
 
 module "codebuild_ci" {
   source = "../../modules/codebuild"
@@ -393,4 +397,6 @@ data "aws_iam_policy_document" "task" {
     }
   }
 }
+
+
 
