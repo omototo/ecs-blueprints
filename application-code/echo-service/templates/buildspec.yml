@@ -2,8 +2,8 @@ version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      dotnet: 6.0
+    commands:
+      - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel STS 
   pre_build:
     commands:
       - $env:AWS_LOGIN_PASSWORD = $(aws ecr get-login-password --region $env:AWS_REGION)
