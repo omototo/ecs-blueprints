@@ -6,16 +6,12 @@ phases:
       - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel STS 
   pre_build:
     commands:
-      - echo $REPO_URL
-      - echo ${REPOSITORY_URI}
-      - echo ${REPOSITORY_URI}:latest
-      - echo $REPOSITORY_URI
       - aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 240484791744.dkr.ecr.eu-west-1.amazonaws.com
       - # Replace text in files (requires custom solution)
       - COMMIT_HASH=${CODEBUILD_RESOLVED_SOURCE_VERSION:0:7}
       - if [ -z "$COMMIT_HASH" ]; then COMMIT_HASH="latest"; fi
       - IMAGE_TAG=$COMMIT_HASH
-      - cp *.csproj $FOLDER_PATH
+      - cp $CODEBUILD_SRC_DIR/*.csproj $FOLDER_PATH
   build:
     commands:
       - # Build the main container
