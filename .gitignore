@@ -76,3 +76,5 @@ __pycache__/
 # Customized ENV files
 .env*
 terraform/fargate-examples/queue-processing/builds/*
+application-code/echo-service/bin/*
+application-code/echo-service/obj/*

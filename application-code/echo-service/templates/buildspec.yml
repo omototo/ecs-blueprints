@@ -11,7 +11,8 @@ phases:
       - COMMIT_HASH=${CODEBUILD_RESOLVED_SOURCE_VERSION:0:7}
       - if [ -z "$COMMIT_HASH" ]; then COMMIT_HASH="latest"; fi
       - IMAGE_TAG=$COMMIT_HASH
-      - cp $CODEBUILD_SRC_DIR/*.csproj $FOLDER_PATH
+      - ls
+      - dotnet restore echo-service/echo-service.csproj
   build:
     commands:
       - # Build the main container
