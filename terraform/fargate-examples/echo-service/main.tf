@@ -211,7 +211,13 @@ resource "aws_iam_policy" "codebuild" {
           "ecr:BatchCheckLayerAvailability",
           "s3:GetObject",
           "s3:GetObjectVersion",
-          "s3:GetBucketAcl"
+          "s3:GetBucketAcl",
+          "ecr:CompleteLayerUpload",
+          "ecr:GetAuthorizationToken",
+          "ecr:UploadLayerPart",
+          "ecr:InitiateLayerUpload",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:PutImage"
         ]
         Resource = "*"
       }

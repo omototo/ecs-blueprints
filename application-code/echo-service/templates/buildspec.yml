@@ -23,8 +23,8 @@ phases:
       - docker tag $REPO_URL $REPO_URL:$IMAGE_TAG
       - docker push $REPO_URL:$IMAGE_TAG
       - # Push the echo-service container
-      - docker tag $REPO_URL-echo-service $REPO_URL-echo-service:$IMAGE_TAG
-      - docker push $REPO_URL-echo-service:$IMAGE_TAG
+      - docker tag $REPO_URL $REPO_URL:$IMAGE_TAG
+      - docker push $REPO_URL:$IMAGE_TAG
       - # Update task definition (requires custom solution)
       - |
           TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --query '{
