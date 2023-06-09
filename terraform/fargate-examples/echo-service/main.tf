@@ -201,6 +201,7 @@ resource "aws_iam_policy" "codebuild" {
           "ecr:DescribeRepositories",
           "ecs:DescribeTaskDefinition",
           "ecr:ListImages",
+          "ecs:RegisterTaskDefinition",
           "ecr:DescribeImages",
            "logs:CreateLogGroup",
           "logs:CreateLogStream",
