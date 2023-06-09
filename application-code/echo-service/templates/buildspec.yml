@@ -25,25 +25,27 @@ phases:
       - # Push the echo-service container
       - docker tag $REPO_URL $REPO_URL:$IMAGE_TAG
       - docker push $REPO_URL:$IMAGE_TAG
-      - # Update task definition (requires custom solution)
-      - |
-          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --query '{
-                containerDefinitions: taskDefinition.containerDefinitions,
-                family: taskDefinition.family,
-                taskRoleArn: taskDefinition.taskRoleArn,
-                executionRoleArn: taskDefinition.executionRoleArn,
-                networkMode: taskDefinition.networkMode,
-                volumes: taskDefinition.volumes,
-                placementConstraints: taskDefinition.placementConstraints,
-                requiresCompatibilities: taskDefinition.requiresCompatibilities,
-                cpu: taskDefinition.cpu,
-                memory: taskDefinition.memory
-            }'> tmp-td.json)
-      - NEW_TASK_DEFINTION=$(jq -r --arg NEWIMAGE "$REPO_URL:$IMAGE_TAG" '.containerDefinitions[].image |= $NEWIMAGE' tmp-td.json > tmp-ntd.json)
-      # - NEW_REVISION=$(echo $NEW_TASK_INFO | jq '.taskDefinition.revision')
-      - aws ecs register-task-definition --cli-input-json file://tmp-ntd.json
-      - mkdir artifacts
-      - cp tmp-ntd.json artifacts/task-definition.json
+      - echo Updating the Amazon ECS task definition...
+      - TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --query '{
+          containerDefinitions: taskDefinition.containerDefinitions,
+          family: taskDefinition.family,
+          taskRoleArn: taskDefinition.taskRoleArn,
+          executionRoleArn: taskDefinition.executionRoleArn,
+          networkMode: taskDefinition.networkMode,
+          volumes: taskDefinition.volumes,
+          placementConstraints: taskDefinition.placementConstraints,
+          requiresCompatibilities: taskDefinition.requiresCompatibilities,
+          cpu: taskDefinition.cpu,
+          memory: taskDefinition.memory
+      }' | tee tmp-td.json)
+      - sed -i "s|IMAGE_TAG|$IMAGE_TAG|g" tmp-td.json
+      - sed -i "s|REPO_URL|$REPO_URL|g" tmp-td.json
+      - aws ecs register-task-definition --cli-input-json file://tmp-td.json
+  artifacts:
+    base-directory: echo-service/bin/Debug/net5.0
+    files:
+      - echo-service.dll
+    discard-paths: yes
 
 artifacts:
   files:
