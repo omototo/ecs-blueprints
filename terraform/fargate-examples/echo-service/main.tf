@@ -201,6 +201,7 @@ resource "aws_iam_policy" "codebuild" {
           "ecr:DescribeRepositories",
           "ecr:ListImages",
           "ecr:DescribeImages",
+          "logs:CreateLogStream",
           "ecr:BatchGetImage",
           "ecr:GetDownloadUrlForLayer",
           "ecr:BatchGetImage",
@@ -274,7 +275,7 @@ module "codepipeline_ci_cd" {
   sns_topic    = aws_sns_topic.codestar_notification.arn
 
   stage = [{
-    name = "Source"
+    name = "GetSource"
     action = [{
       name             = "Source"
       category         = "Source"
