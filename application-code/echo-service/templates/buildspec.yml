@@ -12,7 +12,7 @@ phases:
       - if [ -z "$COMMIT_HASH" ]; then COMMIT_HASH="latest"; fi
       - IMAGE_TAG=$COMMIT_HASH
       - ls
-      - dotnet restore echo-service/echo-service.csproj
+      - dotnet restore application-code/echo-service/echo-service.csproj
   build:
     commands:
       - # Build the main container
