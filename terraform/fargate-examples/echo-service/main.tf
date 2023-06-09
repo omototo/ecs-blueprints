@@ -199,6 +199,7 @@ resource "aws_iam_policy" "codebuild" {
           "ecr:GetDownloadUrlForLayer",
           "ecr:GetRepositoryPolicy",
           "ecr:DescribeRepositories",
+          "ecs:DescribeTaskDefinition",
           "ecr:ListImages",
           "ecr:DescribeImages",
            "logs:CreateLogGroup",
