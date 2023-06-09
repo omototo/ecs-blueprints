@@ -6,7 +6,8 @@ phases:
       - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel STS 
   pre_build:
     commands:
-      - $env:AWS_LOGIN_PASSWORD = $(aws ecr get-login-password --region $env:AWS_REGION)
+      - REPOSITORY=${REPO_URL%/*}
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPOSITORY
       - docker login --username AWS --password $env:AWS_LOGIN_PASSWORD $env:REPO_URL
       - # Replace text in files (requires custom solution)
       - $env:COMMIT_HASH = $env:CODEBUILD_RESOLVED_SOURCE_VERSION.substring(0,7)
