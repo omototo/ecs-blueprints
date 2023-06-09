@@ -1,9 +1,6 @@
 version: 0.2
 
 phases:
-  install:
-    commands:
-      - curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel STS 
   pre_build:
     commands:
       - aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 240484791744.dkr.ecr.eu-west-1.amazonaws.com
@@ -12,20 +9,20 @@ phases:
       - if [ -z "$COMMIT_HASH" ]; then COMMIT_HASH="latest"; fi
       - IMAGE_TAG=$COMMIT_HASH
       - ls
-      - dotnet restore application-code/echo-service/echo-service.csproj
+      - ls $FOLDER_PATH
   build:
     commands:
       - # Build the main container
+      - echo Build started on `date`
       - docker build -t $REPO_URL $FOLDER_PATH
       - # Build the echo-service container
-      - cd echo-service
       - aws codebuild build --project-name echo-service --source-version $CODEBUILD_RESOLVED_SOURCE_VERSION
       - cd ..
   post_build:
     commands:
       - # Push the main container
-      - docker push $REPO_URL || true
-      - docker tag $REPO_URL $REPO_URL:$IMAGE_TAG
+      # First run - docker push $REPO_URL || true
+      #- docker tag $REPO_URL $REPO_URL:$IMAGE_TAG
       - docker push $REPO_URL:$IMAGE_TAG
       - # Push the echo-service container
       - docker tag $REPO_URL-echo-service $REPO_URL-echo-service:$IMAGE_TAG
