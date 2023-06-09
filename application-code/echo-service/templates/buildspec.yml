@@ -7,6 +7,8 @@ phases:
   pre_build:
     commands:
       - REPOSITORY=${REPO_URL%/*}
+      - echo $REPOSITORY
+      - $REPO_URL
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPOSITORY
       - docker login --username AWS --password $env:AWS_LOGIN_PASSWORD $env:REPO_URL
       - # Replace text in files (requires custom solution)
