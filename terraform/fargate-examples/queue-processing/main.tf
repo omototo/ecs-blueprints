@@ -305,17 +305,6 @@ resource "aws_sns_topic" "codestar_notification" {
   tags = local.tags
 }
 
-resource "aws_cognito_user_pool" "this" {
-  name = "test-user-pool"
-  # Add any additional configuration options here
-}
-
-resource "aws_cognito_user_pool_client" "this" {
-  name = "test-user-pool-client"
-  user_pool_id = aws_cognito_user_pool.this.id
-  # Add any additional configuration options here
-}
-
 module "codebuild_ci" {
   source = "../../modules/codebuild"
 
@@ -345,14 +334,7 @@ module "codebuild_ci" {
         }, {
         name  = "DESTINATION_BUCKET"
         value = module.destination_s3_bucket.s3_bucket_id
-      },{
-        name  = "COGNITO_USER_POOL_ID"
-        value = aws_cognito_user_pool.this.id
-      }, {
-        name  = "COGNITO_USER_POOL_CLIENT_ID"
-        value = aws_cognito_user_pool_client.this.id
       }
-      
     ]
   }
 
