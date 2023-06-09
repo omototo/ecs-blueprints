@@ -16,20 +16,34 @@ phases:
       - echo Build started on `date`
       - docker build -t $REPO_URL $FOLDER_PATH
       - # Build the echo-service container
-      - aws codebuild build --project-name echo-service --source-version $CODEBUILD_RESOLVED_SOURCE_VERSION
-      - cd ..
   post_build:
     commands:
       - # Push the main container
       # First run - docker push $REPO_URL || true
-      #- docker tag $REPO_URL $REPO_URL:$IMAGE_TAG
+      - docker tag $REPO_URL $REPO_URL:$IMAGE_TAG
       - docker push $REPO_URL:$IMAGE_TAG
       - # Push the echo-service container
       - docker tag $REPO_URL-echo-service $REPO_URL-echo-service:$IMAGE_TAG
       - docker push $REPO_URL-echo-service:$IMAGE_TAG
       - # Update task definition (requires custom solution)
-      - New-Item -ItemType Directory -Path artifacts -Force
-      - Copy-Item tmp-ntd.json artifacts\task-definition.json
+      - |
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --query '{
+                containerDefinitions: taskDefinition.containerDefinitions,
+                family: taskDefinition.family,
+                taskRoleArn: taskDefinition.taskRoleArn,
+                executionRoleArn: taskDefinition.executionRoleArn,
+                networkMode: taskDefinition.networkMode,
+                volumes: taskDefinition.volumes,
+                placementConstraints: taskDefinition.placementConstraints,
+                requiresCompatibilities: taskDefinition.requiresCompatibilities,
+                cpu: taskDefinition.cpu,
+                memory: taskDefinition.memory
+            }'> tmp-td.json)
+      - NEW_TASK_DEFINTION=$(jq -r --arg NEWIMAGE "$REPO_URL:$IMAGE_TAG" '.containerDefinitions[].image |= $NEWIMAGE' tmp-td.json > tmp-ntd.json)
+      # - NEW_REVISION=$(echo $NEW_TASK_INFO | jq '.taskDefinition.revision')
+      - aws ecs register-task-definition --cli-input-json file://tmp-ntd.json
+      - mkdir artifacts
+      - cp tmp-ntd.json artifacts/task-definition.json
 
 artifacts:
   files:
