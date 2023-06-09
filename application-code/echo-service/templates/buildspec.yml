@@ -42,6 +42,8 @@ phases:
       - aws ecs register-task-definition --cli-input-json file://tmp-ntd.json
       - mkdir artifacts
       - cp tmp-ntd.json artifacts/task-definition.json
+      - echo "REPO_URL: $REPO_URL"
+      - echo "IMAGE_TAG: $IMAGE_TAG"
       - echo '[{"name":"CONTAINER_NAME","imageUri":"$REPO_URL:$IMAGE_TAG"}]' > imagedefinitions.json
       - cp imagedefinitions.json artifacts/
 artifacts:
