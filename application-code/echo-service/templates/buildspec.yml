@@ -10,27 +10,27 @@ phases:
       - echo $REPOSITORY
       - $REPO_URL
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPOSITORY
-      - docker login --username AWS --password $env:AWS_LOGIN_PASSWORD $env:REPO_URL
+      - docker login --username AWS --password $AWS_LOGIN_PASSWORD $REPO_URL
       - # Replace text in files (requires custom solution)
-      - $env:COMMIT_HASH = $env:CODEBUILD_RESOLVED_SOURCE_VERSION.substring(0,7)
-      - if ($env:COMMIT_HASH -eq $null) { $env:COMMIT_HASH = "latest" }
-      - $env:IMAGE_TAG = $env:COMMIT_HASH
+      - $COMMIT_HASH = $CODEBUILD_RESOLVED_SOURCE_VERSION.substring(0,7)
+      - if ($COMMIT_HASH -eq $null) { $COMMIT_HASH = "latest" }
+      - $IMAGE_TAG = $COMMIT_HASH
   build:
     commands:
       - # Build the main container
-      - docker build -t $env:REPO_URL $env:FOLDER_PATH
+      - docker build -t $REPO_URL $FOLDER_PATH
       - # Build the echo-service container
       - cd echo-service
-      - aws codebuild build --project-name echo-service --source-version $env:CODEBUILD_RESOLVED_SOURCE_VERSION
+      - aws codebuild build --project-name echo-service --source-version $CODEBUILD_RESOLVED_SOURCE_VERSION
       - cd ..
   post_build:
     commands:
       - # Push the main container
-      - docker tag $env:REPO_URL $env:REPO_URL:$env:IMAGE_TAG
-      - docker push $env:REPO_URL:$env:IMAGE_TAG
+      - docker tag $REPO_URL $REPO_URL:$IMAGE_TAG
+      - docker push $REPO_URL:$IMAGE_TAG
       - # Push the echo-service container
-      - docker tag $env:REPO_URL-echo-service $env:REPO_URL-echo-service:$env:IMAGE_TAG
-      - docker push $env:REPO_URL-echo-service:$env:IMAGE_TAG
+      - docker tag $REPO_URL-echo-service $REPO_URL-echo-service:$IMAGE_TAG
+      - docker push $REPO_URL-echo-service:$IMAGE_TAG
       - # Update task definition (requires custom solution)
       - New-Item -ItemType Directory -Path artifacts -Force
       - Copy-Item tmp-ntd.json artifacts\task-definition.json
