@@ -3,7 +3,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      docker: 20
+      dotnet: 6.0
   pre_build:
     commands:
       - $env:AWS_LOGIN_PASSWORD = $(aws ecr get-login-password --region $env:AWS_REGION)
