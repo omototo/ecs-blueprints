@@ -15,7 +15,7 @@ resource "aws_codebuild_project" "this" {
 
     content {
       compute_type                = try(environment.value.compute_type, "BUILD_GENERAL1_SMALL")
-      image                       = try(environment.value.image, "aws/codebuild/standard:4.0")
+      image                       = try(environment.value.image, "aws/codebuild/amazonlinux2-x86_64-standard:5.0")
       image_pull_credentials_type = try(environment.value.image_pull_credentials_type, null)
       type                        = try(environment.value.type, "LINUX_CONTAINER")
       privileged_mode             = try(environment.value.privileged_mode, null)

@@ -24,7 +24,7 @@ variable "environment" {
   description = "CodeBuild environment configuration details. At least one attribute is required since `environment` is a required by CodeBuild"
   type        = any
   default = {
-    image = "aws/codebuild/standard:4.0"
+    image = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
   }
 }
 
