@@ -26,29 +26,27 @@ phases:
       - docker tag $REPO_URL $REPO_URL:$IMAGE_TAG
       - docker push $REPO_URL:$IMAGE_TAG
       - echo Updating the Amazon ECS task definition...
-      - TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --query '{
-          containerDefinitions: taskDefinition.containerDefinitions,
-          family: taskDefinition.family,
-          taskRoleArn: taskDefinition.taskRoleArn,
-          executionRoleArn: taskDefinition.executionRoleArn,
-          networkMode: taskDefinition.networkMode,
-          volumes: taskDefinition.volumes,
-          placementConstraints: taskDefinition.placementConstraints,
-          requiresCompatibilities: taskDefinition.requiresCompatibilities,
-          cpu: taskDefinition.cpu,
-          memory: taskDefinition.memory
-      }' | tee tmp-td.json)
+      - |
+          TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --query '{
+              containerDefinitions: taskDefinition.containerDefinitions,
+              family: taskDefinition.family,
+              taskRoleArn: taskDefinition.taskRoleArn,
+              executionRoleArn: taskDefinition.executionRoleArn,
+              networkMode: taskDefinition.networkMode,
+              volumes: taskDefinition.volumes,
+              placementConstraints: taskDefinition.placementConstraints,
+              requiresCompatibilities: taskDefinition.requiresCompatibilities,
+              cpu: taskDefinition.cpu,
+              memory: taskDefinition.memory
+          }' | tee tmp-td.json)
       - sed -i "s|IMAGE_TAG|$IMAGE_TAG|g" tmp-td.json
       - sed -i "s|REPO_URL|$REPO_URL|g" tmp-td.json
       - aws ecs register-task-definition --cli-input-json file://tmp-td.json
+      - echo Pushing the echo-service Docker image to Amazon ECR...
+      - docker tag $REPO_URL-echo-service $REPO_URL-echo-service:$IMAGE_TAG
+      - docker push $REPO_URL-echo-service:$IMAGE_TAG
   artifacts:
     base-directory: echo-service/bin/Debug/net5.0
     files:
       - echo-service.dll
     discard-paths: yes
-
-artifacts:
-  files:
-    - '**/*'
-  base-directory: 'artifacts'
-  discard-paths: yes
