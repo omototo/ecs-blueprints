@@ -1,6 +1,6 @@
 [
     {
-        "name": "<CONTAINER_NAME>",
+        "name": "echo-service-task",
         "imageUri": "<REPO_URL>"
     }
 ]
