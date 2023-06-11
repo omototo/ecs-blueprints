@@ -17,6 +17,11 @@ namespace EchoService
 
         static async Task Main(string[] args)
         {
+            var envVars = Environment.GetEnvironmentVariables();
+            foreach (System.Collections.DictionaryEntry var in envVars)
+            {
+                Console.WriteLine($"{var.Key}: {var.Value}");
+            }
             var listener = new TcpListener(IPAddress.Any, 3000);
             listener.Start();
             Console.WriteLine("Listening on port 3000...");
