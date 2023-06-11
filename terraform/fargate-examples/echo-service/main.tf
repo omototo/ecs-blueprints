@@ -419,5 +419,29 @@ data "aws_iam_policy_document" "task" {
   }
 }
 
+resource "aws_iam_policy" "cognito_admin_auth" {
+  name        = "CognitoAdminAuth"
+  description = "Allows admin initiate auth action on Cognito"
+  policy      = <<-EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "cognito-idp:AdminInitiateAuth",
+      "Resource": "${aws_cognito_user_pool.this.arn}"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "task_cognito_admin_auth" {
+  role       = aws_iam_role.task.name
+  policy_arn = aws_iam_policy.cognito_admin_auth.arn
+}
+
+
+
 
 
