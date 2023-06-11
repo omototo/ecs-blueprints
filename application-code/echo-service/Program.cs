@@ -8,6 +8,7 @@ using Amazon.CognitoIdentityProvider.Model;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
+using System.Linq;
 
 namespace EchoService
 {
@@ -34,11 +35,23 @@ namespace EchoService
                 var message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
                 Console.WriteLine("Received message: {0}", message);
 
+                var requestLine = message.Split("\n")[0];
+                var requestPath = requestLine.Split(" ")[1];
+
+                // Health check path
+                if (requestPath == "/healthcheck")
+                {
+                    var response = Encoding.ASCII.GetBytes("HTTP/1.1 200 OK\r\n\r\nHealth check OK");
+                    await stream.WriteAsync(response, 0, response.Length);
+                    client.Close();
+                    continue;
+                }
+
                 // Check if the request contains an Authorization header
                 if (!message.Contains("Authorization: Basic"))
                 {
                     Console.WriteLine("Unauthorized request");
-                    var response = Encoding.ASCII.GetBytes("HTTP/1.1 200 OK\r\n\r\n");
+                    var response = Encoding.ASCII.GetBytes("HTTP/1.1 401 Unauthorized\r\n\r\nUnauthorized request");
                     await stream.WriteAsync(response, 0, response.Length);
                     client.Close();
                     continue;
@@ -50,18 +63,17 @@ namespace EchoService
                 var username = authDetails[0];
                 var password = authDetails[1];
 
-            var validateTokenRequest = new AdminInitiateAuthRequest
-            {
-                UserPoolId = Environment.GetEnvironmentVariable("COGNITO_USER_POOL_ID"),
-                ClientId = Environment.GetEnvironmentVariable("COGNITO_USER_POOL_CLIENT_ID"),
-                AuthFlow = AuthFlowType.ADMIN_NO_SRP_AUTH,
-                AuthParameters = new Dictionary<string, string>
+                var validateTokenRequest = new AdminInitiateAuthRequest
                 {
-                    { "USERNAME", username },
-                    { "PASSWORD", password }
-                }
-            };
-
+                    UserPoolId = Environment.GetEnvironmentVariable("COGNITO_USER_POOL_ID"),
+                    ClientId = Environment.GetEnvironmentVariable("COGNITO_USER_POOL_CLIENT_ID"),
+                    AuthFlow = AuthFlowType.ADMIN_NO_SRP_AUTH,
+                    AuthParameters = new Dictionary<string, string>
+                    {
+                        { "USERNAME", username },
+                        { "PASSWORD", password }
+                    }
+                };
 
                 var validateTokenResponse = await _cognitoClient.AdminInitiateAuthAsync(validateTokenRequest);
 
@@ -99,9 +111,7 @@ namespace EchoService
                 var responseBytes = Encoding.ASCII.GetBytes("HTTP/1.1 200 OK\r\n\r\n" + responseJson);
                 stream.Write(responseBytes, 0, responseBytes.Length);
                 client.Close();
-
             }
         }
     }
 }
-
