@@ -88,7 +88,6 @@ resource "aws_lb_target_group" "this" {
   }
 }
 
-
 resource "aws_security_group" "this" {
   name_prefix = "echo-sg"
   vpc_id      = data.aws_vpc.vpc.id
