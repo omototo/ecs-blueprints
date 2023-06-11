@@ -33,7 +33,7 @@ namespace EchoService
                 if (!message.Contains("Authorization: Basic"))
                 {
                     Console.WriteLine("Unauthorized request");
-                    var response = Encoding.ASCII.GetBytes("HTTP/1.1 401 Unauthorized\r\n\r\n");
+                    var response = Encoding.ASCII.GetBytes("HTTP/1.1 200 OK\r\n\r\n");
                     await stream.WriteAsync(response, 0, response.Length);
                     client.Close();
                     continue;
