@@ -129,7 +129,7 @@ resource "aws_ecs_task_definition" "this" {
     },
     environment = [
       {
-        name  = "UserPoolId"
+        name  = "COGNITO_USER_POOL_ID"
         value = aws_cognito_user_pool.this.id
       },
       {
