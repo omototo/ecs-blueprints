@@ -86,6 +86,7 @@ namespace EchoService
                 var responseBody = new Dictionary<string, string>
                 {
                     { "message", "Hello, " + userInfoResponse.Username },
+                    { "test", "Yay!"},
                     { "email", userInfoResponse.UserAttributes.FirstOrDefault(a => a.Name == "email")?.Value }
                 };
 

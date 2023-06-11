@@ -126,7 +126,13 @@ resource "aws_ecs_task_definition" "this" {
         "awslogs-region"        = local.region
         "awslogs-stream-prefix" = "echo-service"
       }
-    }
+    },
+    environment = [
+      {
+        name  = "UserPoolId"
+        value = aws_cognito_user_pool.this.id
+      }
+    ]
   }])
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
