@@ -114,10 +114,19 @@ resource "aws_ecs_task_definition" "this" {
   container_definitions    = jsonencode([{
     name      = "echo-service-task"
     image     = module.container_image_ecr.repository_url
+    essential = true
     portMappings = [{
       containerPort = 3000
       hostPort      = 3000
     }]
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        "awslogs-group"         = "ecs_tasks_logs"
+        "awslogs-region"        = local.region
+        "awslogs-stream-prefix" = "echo-service"
+      }
+    }
   }])
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -151,7 +160,7 @@ resource "aws_ecs_service" "this" {
     security_groups = [aws_security_group.this.id]
     subnets         =  concat(data.aws_subnets.public.ids)
 
-    assign_public_ip = false
+    assign_public_ip = true
   }
 
   load_balancer {
@@ -219,6 +228,7 @@ resource "aws_iam_policy" "codebuild" {
           "s3:GetObject",
           "s3:GetObjectVersion",
           "s3:GetBucketAcl",
+          "s3:PutObject",
           "ecr:CompleteLayerUpload",
           "ecr:GetAuthorizationToken",
           "ecr:UploadLayerPart",

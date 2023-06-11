@@ -7,7 +7,7 @@ phases:
       - # Replace text in files (requires custom solution)
       - COMMIT_HASH=${CODEBUILD_RESOLVED_SOURCE_VERSION:0:7}
       - if [ -z "$COMMIT_HASH" ]; then COMMIT_HASH="latest"; fi
-      - IMAGE_TAG=$COMMIT_HASH
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
       - ls
       - ls $FOLDER_PATH
   build:
