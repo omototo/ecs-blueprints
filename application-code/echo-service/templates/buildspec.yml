@@ -14,13 +14,13 @@ phases:
     commands:
       - # Build the main container
       - echo Build started on `date`
-      - docker build -t $REPO_URL $FOLDER_PATH
+      - docker build -t $REPO_URL:$IMAGE_TAG $FOLDER_PATH
       - # Build the echo-service container
   post_build:
     commands:
       - # Push the main container
       # First run - docker push $REPO_URL || true
-      - docker tag $REPO_URL $REPO_URL:$IMAGE_TAG
+      - docker tag $REPO_URL:$IMAGE_TAG $REPO_URL:$IMAGE_TAG
       - docker push $REPO_URL:$IMAGE_TAG
       - # Push the echo-service container
       - echo Updating the Amazon ECS task definition...
@@ -37,7 +37,7 @@ phases:
                 cpu: taskDefinition.cpu,
                 memory: taskDefinition.memory
             }'> tmp-td.json)
-      - NEW_TASK_DEFINTION=$(jq -r --arg NEWIMAGE "$REPO_URL:$IMAGE_TAG" '.containerDefinitions[].image |= $NEWIMAGE' tmp-td.json > tmp-ntd.json)
+      - NEW_TASK_DEFINTION=$(jq -r --arg NEWIMAGE "$REPO_URL:$IMAGE_TAG" '.containerDefinitions[].image |= $NEWIMAGE' tmp-td.json > tmp-ntd.json && mv tmp-ntd.json tmp-td.json)
       # - NEW_REVISION=$(echo $NEW_TASK_INFO | jq '.taskDefinition.revision')
       - aws ecs register-task-definition --cli-input-json file://tmp-ntd.json
       - mkdir artifacts
