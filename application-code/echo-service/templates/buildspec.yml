@@ -37,7 +37,7 @@ phases:
                 cpu: taskDefinition.cpu,
                 memory: taskDefinition.memory
             }'> tmp-td.json)
-      - NEW_TASK_DEFINTION=$(jq -r --arg NEWIMAGE "$REPO_URL:$IMAGE_TAG" '.containerDefinitions[].image |= $NEWIMAGE' tmp-td.json > tmp-ntd.json && mv tmp-ntd.json tmp-td.json)
+      - NEW_TASK_DEFINTION=$(jq -r --arg NEWIMAGE "$REPO_URL:$IMAGE_TAG" '.containerDefinitions[].image |= $NEWIMAGE' tmp-td.json > tmp-ntd.json)
       # - NEW_REVISION=$(echo $NEW_TASK_INFO | jq '.taskDefinition.revision')
       - aws ecs register-task-definition --cli-input-json file://tmp-ntd.json
       - mkdir artifacts
