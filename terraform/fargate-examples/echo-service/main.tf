@@ -131,7 +131,11 @@ resource "aws_ecs_task_definition" "this" {
       {
         name  = "UserPoolId"
         value = aws_cognito_user_pool.this.id
-      }
+      },
+      {
+        name  = "COGNITO_USER_POOL_CLIENT_ID"
+        value = aws_cognito_user_pool_client.this.id
+      },
     ]
   }])
   network_mode             = "awsvpc"
