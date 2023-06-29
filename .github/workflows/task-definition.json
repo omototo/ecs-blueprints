@@ -1,0 +1,91 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:eu-west-1:240484791744:task-definition/echo-task-family:42",
+    "containerDefinitions": [
+        {
+            "name": "echo-service-task",
+            "image": "240484791744.dkr.ecr.eu-west-1.amazonaws.com/ecsdemo-echo-service:334cb72",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "hostPort": 3000,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "COGNITO_USER_POOL_ID",
+                    "value": "eu-west-1_jkhzUU6sw"
+                },
+                {
+                    "name": "COGNITO_USER_POOL_CLIENT_ID",
+                    "value": "14cjumdhmqt26a3c9uov8k042f"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "ecs_tasks_logs",
+                    "awslogs-region": "eu-west-1",
+                    "awslogs-stream-prefix": "echo-service"
+                }
+            }
+        }
+    ],
+    "family": "echo-task-family",
+    "taskRoleArn": "arn:aws:iam::240484791744:role/ecsdemo-echo-service-task",
+    "executionRoleArn": "arn:aws:iam::240484791744:role/core-infra-execution-role",
+    "networkMode": "awsvpc",
+    "revision": 42,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512",
+    "tags": [
+        {
+            "key": "Blueprint",
+            "value": "ecsdemo-echo-service"
+        },
+        {
+            "key": "GithubRepo",
+            "value": "github.com/aws-ia/ecs-blueprints"
+        }
+    ]
+}
