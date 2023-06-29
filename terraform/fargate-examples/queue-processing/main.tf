@@ -122,7 +122,7 @@ module "lambda_function" {
 resource "aws_cloudwatch_event_rule" "fargate_scaling" {
   name                = "ECSTaskTriggerScheduler"
   description         = "This rule is used for autoscaling ECS with Lambda"
-  schedule_expression = "rate(2 minutes)"
+  schedule_expression = "rate(1 minutes)"
 
   tags = local.tags
 }
