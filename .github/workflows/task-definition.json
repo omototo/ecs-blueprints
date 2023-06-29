@@ -1,5 +1,5 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:eu-west-1:240484791744:task-definition/echo-task-family:42",
+    "taskDefinitionArn": "arn:aws:ecs:eu-west-1:240484791744:task-definition/echo-task-family:76",
     "containerDefinitions": [
         {
             "name": "echo-service-task",
@@ -39,7 +39,7 @@
     "taskRoleArn": "arn:aws:iam::240484791744:role/ecsdemo-echo-service-task",
     "executionRoleArn": "arn:aws:iam::240484791744:role/core-infra-execution-role",
     "networkMode": "awsvpc",
-    "revision": 42,
+    "revision": 76,
     "volumes": [],
     "status": "ACTIVE",
     "requiresAttributes": [
@@ -78,14 +78,6 @@
     ],
     "cpu": "256",
     "memory": "512",
-    "tags": [
-        {
-            "key": "Blueprint",
-            "value": "ecsdemo-echo-service"
-        },
-        {
-            "key": "GithubRepo",
-            "value": "github.com/aws-ia/ecs-blueprints"
-        }
-    ]
+    "registeredAt": "2023-06-29T15:39:14.514000+02:00",
+    "registeredBy": "arn:aws:sts::240484791744:assumed-role/echo-service-pipeline-69a3-20230610115639308400000001/1688045954222"
 }
