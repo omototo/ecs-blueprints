@@ -32,7 +32,7 @@ on:
 
 env:
   AWS_REGION: eu-west-1                   # set this to your preferred AWS region, e.g. us-west-1
-  ECR_REPOSITORY: ecsdemo-echo-service           # set this to your Amazon ECR repository name
+  ECR_REPOSITORY: 240484791744.dkr.ecr.eu-west-1.amazonaws.com/ecsdemo-echo-service           # set this to your Amazon ECR repository name
   ECS_SERVICE: win-test                 # set this to your Amazon ECS service name
   ECS_CLUSTER: core-infra                 # set this to your Amazon ECS cluster name
   ECS_TASK_DEFINITION: echo-task-family # set this to the path to your Amazon ECS task definition
