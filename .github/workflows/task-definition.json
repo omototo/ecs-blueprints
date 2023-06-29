@@ -3,7 +3,7 @@
     "containerDefinitions": [
         {
             "name": "echo-service-task",
-            "image": "240484791744.dkr.ecr.eu-west-1.amazonaws.com/ecsdemo-echo-service:334cb72",
+            "image": "240484791744.dkr.ecr.eu-west-1.amazonaws.com/win-test:latest",
             "cpu": 0,
             "portMappings": [
                 {
