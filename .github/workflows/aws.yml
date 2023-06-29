@@ -81,7 +81,7 @@ jobs:
 
     - name: Download task definition
       run: |
-        aws ecs describe-task-definition --task-definition windows-simple-iis-2019-core --query taskDefinition > task-definition.json
+        aws ecs describe-task-definition --task-definition windows-simple-iis-2019-core:latest --query taskDefinition > task-definition.json
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
