@@ -1,4 +1,4 @@
-FROM winamd64/python
+FROM mcr.microsoft.com/windows/servercore/iis:windowsservercore-ltsc2019
 
 RUN mkdir -p /tmp/ecsproc/
 
