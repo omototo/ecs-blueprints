@@ -1,4 +1,4 @@
-FROM python:windowsservercore
+FROM winamd64/python
 
 RUN mkdir -p /tmp/ecsproc/
 

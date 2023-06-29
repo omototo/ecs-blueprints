@@ -61,7 +61,7 @@ resource "aws_ecs_task_definition" "this" {
   container_definitions = jsonencode([
     {
       name  = local.container_name
-      image = module.container_image_ecr.repository_url
+      image = "${module.container_image_ecr.repository_url}:latest"
       logConfiguration = {
         "logDriver" : "awslogs",
         "options" : {
