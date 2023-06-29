@@ -69,6 +69,7 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
+        ECR_REPOSITORY: win-test
       working-directory: ./application-code/echo-service
       run: |
         # Build a docker container and
