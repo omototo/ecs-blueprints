@@ -43,7 +43,7 @@ permissions:
 jobs:
   deploy:
     name: Deploy
-    runs-on: windows-latest
+    runs-on: windows-2019
     environment: production
 
     steps:
