@@ -11,6 +11,8 @@ import logging
 import sys, os
 import json
 import boto3
+import os
+import platform
 from botocore.exceptions import ClientError
 try:
     from PIL import Image
@@ -150,8 +152,14 @@ def usage_demo():
                 except KeyError:
                     print(f"Invalid {bucket} or {key}")
                 file_name = os.path.split(key)
-                download_path = '/tmp/ecsproc/' + file_name[1]
-                upload_path = '/tmp/ecsproc/thumbnail-{}'.format(file_name[1])
+                # Check which system we're running on
+                if platform.system() == "Windows":
+                    base_dir = 'C:\\ecsproc\\'
+                else:
+                    base_dir = '/tmp/ecsproc/'
+
+                download_path = os.path.join(base_dir, file_name[1])
+                upload_path = os.path.join(base_dir, 'thumbnail-{}'.format(file_name[1]))
 
                 s3_client.download_file(bucket, key, download_path)
                 resize_image(download_path, upload_path)
