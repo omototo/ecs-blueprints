@@ -1,0 +1,1 @@
+{"filename": "builds/1251fe89915d4452abb7f8aa7ab0fe6ca9ed3087c5d99af1230a885e3eb823df.zip", "runtime": "python3.8", "artifacts_dir": "builds", "build_plan": [["zip", "../../../application-code/lambda-function-queue-trigger-windows/", null]]}

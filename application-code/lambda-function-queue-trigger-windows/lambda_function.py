@@ -95,7 +95,7 @@ def lambda_handler(event, context):
                     'name': 'PIPELINE_ECS_JOB_MODE',
                     'value': '1'
                 }, {
-                    'name': 'PIPELINE_S3_DEST_PREFIX',
+                    'name': 'WIN_PIPELINE_S3_DEST_PREFIX',
                     'value': S3_DEST_PREFIX
                 }
                 ]
