@@ -5,3 +5,4 @@ This folder contains sample application code used to build container images. The
   * *imagedefinition.json* file which is used in the *buildspec.yml* file to list the container names and images
 
 You can try the examples with your own application. In your application repository, you will need atleast a *Dockerfile* and a *templates* folder with contents as described above.
+ 
