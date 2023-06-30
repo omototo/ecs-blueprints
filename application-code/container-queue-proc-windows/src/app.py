@@ -153,17 +153,10 @@ def usage_demo():
                     print(f"Invalid {bucket} or {key}")
                 file_name = os.path.split(key)
                 # Check which system we're running on
-                if platform.system() == "Windows":
-                    base_dir = 'C:\\ecsproc\\'
-                else:
-                    base_dir = '/tmp/ecsproc/'
-
-                download_path = os.path.join(base_dir, file_name[1])
-                upload_path = os.path.join(base_dir, 'thumbnail-{}'.format(file_name[1]))
-
-                s3_client.download_file(bucket, key, download_path)
-                resize_image(download_path, upload_path)
-                s3_client.upload_file(upload_path, DEST_BUCKET, S3_PREFIX + "/" + file_name[1])
+                
+                s3_client.download_file(bucket, key, file_name[1])
+                resize_image(file_name[1], 'thumbnail-{}'.format(file_name[1]))
+                s3_client.upload_file('thumbnail-{}'.format(file_name[1]), DEST_BUCKET, S3_PREFIX + "/" + file_name[1])
 
         if received_messages:
             delete_messages(queue, received_messages)
