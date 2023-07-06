@@ -85,7 +85,7 @@ resource "aws_cloudwatch_log_group" "this" {
   retention_in_days = 90
 
   tags = local.tags
-}
+} 
 
 ################################################################################
 # Lambda Function ECS scaling trigger
